@@ -1,0 +1,81 @@
+### 1. Health Check
+GET http://localhost:3000/health
+
+### 2. Admisión de Encomienda Válida (Zona Provincial, Recargo Frágil)
+POST http://localhost:3000/api/encomiendas/admitir
+Content-Type: application/json
+
+{
+  "cliente": "Distribuidora Central S.A.",
+  "alto": 40,
+  "ancho": 40,
+  "largo": 40,
+  "pesoReal": 15,
+  "distanciaKm": 150,
+  "esFragil": true,
+  "esExpress": false,
+  "valorDeclarado": 30000
+}
+
+### 3. Admisión con Error de Validación (Lado mayor a 150 cm) -> Retorna 400 Bad Request
+POST http://localhost:3000/api/encomiendas/admitir
+Content-Type: application/json
+
+{
+  "cliente": "Mueblería Los Andes",
+  "alto": 160,
+  "ancho": 50,
+  "largo": 50,
+  "pesoReal": 10,
+  "distanciaKm": 30,
+  "esFragil": false,
+  "esExpress": false,
+  "valorDeclarado": 0
+}
+
+### 4. Admisión con Error de Validación (Peso mayor a 40 kg) -> Retorna 400 Bad Request
+POST http://localhost:3000/api/encomiendas/admitir
+Content-Type: application/json
+
+{
+  "cliente": "Metalúrgica Cordobesa",
+  "alto": 50,
+  "ancho": 50,
+  "largo": 50,
+  "pesoReal": 45,
+  "distanciaKm": 50,
+  "esFragil": false,
+  "esExpress": false,
+  "valorDeclarado": 0
+}
+
+### 5. Despacho y Asignación Automática de Vehículo
+POST http://localhost:3000/api/encomiendas/despachar
+Content-Type: application/json
+
+{
+  "encomiendaId": 1
+}
+
+### 6. Registro de Entrega con Demora (30 horas -> Reintegro 50%)
+POST http://localhost:3000/api/encomiendas/entregar
+Content-Type: application/json
+
+{
+  "despachoId": 1,
+  "horasDemora": 30,
+  "estadoFinal": "ENTREGADO"
+}
+
+### 7. Consultar Estado Consolidado de Encomienda por ID
+GET http://localhost:3000/api/encomiendas/1
+
+### 8. Listar Todas las Encomiendas Registradas
+GET http://localhost:3000/api/encomiendas
+
+### 9. Listar Encomiendas Filtradas por Estado
+GET http://localhost:3000/api/encomiendas?estado=ADMITIDO
+
+### 10. Consultar Estadísticas y Métricas Globales
+GET http://localhost:3000/api/encomiendas/estadisticas
+

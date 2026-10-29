@@ -1,0 +1,340 @@
+openapi: 3.0.3
+info:
+  title: LogiTrack API
+  version: 2.0.0
+  description: >
+    API de Liquidación, Admisión, Tarifación y Despacho Logístico de Encomiendas.
+    Construida con Clean Architecture, Finite State Machine, Strategy Pattern y soporte transaccional ACID.
+  contact:
+    name: Guillermo Vivas & Joaquín Cuello
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo local
+
+paths:
+  /health:
+    get:
+      summary: Health check del servicio
+      tags:
+        - Sistema
+      responses:
+        '200':
+          description: Servicio saludable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  servicio:
+                    type: string
+                    example: LogiTrack API
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/encomiendas/admitir:
+    post:
+      summary: Admisión y cálculo tarifario de encomienda
+      tags:
+        - Encomiendas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmisionInput'
+      responses:
+        '201':
+          description: Encomienda admitida con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaExitoEncomienda'
+        '400':
+          description: Datos inválidos o fuera de límites físicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaError'
+
+  /api/encomiendas/despachar:
+    post:
+      summary: Despacho y asignación automática de vehículo
+      tags:
+        - Despachos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - encomiendaId
+              properties:
+                encomiendaId:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Encomienda despachada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaExitoDespacho'
+        '400':
+          description: Transición de estado inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaError'
+        '404':
+          description: Encomienda no encontrada
+
+  /api/encomiendas/entregar:
+    post:
+      summary: Registro de entrega y liquidación de indemnizaciones
+      tags:
+        - Entregas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntregaInput'
+      responses:
+        '200':
+          description: Entrega registrada y liquidada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaExitoEntrega'
+        '400':
+          description: Datos inválidos o estado inválido
+        '404':
+          description: Despacho o encomienda no encontrada
+
+  /api/encomiendas:
+    get:
+      summary: Listar encomiendas con filtro opcional por estado
+      tags:
+        - Encomiendas
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ADMITIDO, EN_TRANSITO, ENTREGADO, DEVUELTO, SINIESTRADO]
+      responses:
+        '200':
+          description: Lista de encomiendas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: EXITO
+                  datos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Encomienda'
+
+  /api/encomiendas/estadisticas:
+    get:
+      summary: Métricas y estadísticas financieras y operativas
+      tags:
+        - Estadísticas
+      responses:
+        '200':
+          description: Métricas acumuladas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estadisticas'
+
+  /api/encomiendas/{id}:
+    get:
+      summary: Obtener detalle completo de encomienda por ID
+      tags:
+        - Encomiendas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle con despacho y entrega
+        '404':
+          description: Encomienda no encontrada
+
+components:
+  schemas:
+    AdmisionInput:
+      type: object
+      required:
+        - cliente
+        - alto
+        - ancho
+        - largo
+        - pesoReal
+        - distanciaKm
+      properties:
+        cliente:
+          type: string
+          example: Distribuidora Central S.A.
+        alto:
+          type: number
+          example: 40
+        ancho:
+          type: number
+          example: 40
+        largo:
+          type: number
+          example: 40
+        pesoReal:
+          type: number
+          example: 25
+        distanciaKm:
+          type: number
+          example: 100
+        esFragil:
+          type: boolean
+          default: false
+        esExpress:
+          type: boolean
+          default: false
+        valorDeclarado:
+          type: number
+          default: 0
+
+    EntregaInput:
+      type: object
+      required:
+        - despachoId
+        - horasDemora
+        - estadoFinal
+      properties:
+        despachoId:
+          type: integer
+          example: 1
+        horasDemora:
+          type: integer
+          example: 30
+        estadoFinal:
+          type: string
+          enum: [ENTREGADO, DEVUELTO, SINIESTRADO]
+          example: ENTREGADO
+
+    Encomienda:
+      type: object
+      properties:
+        id:
+          type: integer
+        codigoSeguimiento:
+          type: string
+        cliente:
+          type: string
+        pesoFacturable:
+          type: number
+        distanciaKm:
+          type: number
+        tipoZona:
+          type: string
+        costoTotal:
+          type: number
+        estado:
+          type: string
+
+    Estadisticas:
+      type: object
+      properties:
+        status:
+          type: string
+          example: EXITO
+        datos:
+          type: object
+          properties:
+            totalEncomiendas:
+              type: integer
+            totalRecaudado:
+              type: number
+            totalRecaudadoFletes:
+              type: number
+            totalIndemnizado:
+              type: number
+            distribucionFlota:
+              type: object
+              properties:
+                motos:
+                  type: integer
+                utilitarios:
+                  type: integer
+                camiones:
+                  type: integer
+
+    RespuestaExitoEncomienda:
+      type: object
+      properties:
+        status:
+          type: string
+          example: EXITO
+        mensaje:
+          type: string
+        datos:
+          $ref: '#/components/schemas/Encomienda'
+
+    RespuestaExitoDespacho:
+      type: object
+      properties:
+        status:
+          type: string
+          example: EXITO
+        mensaje:
+          type: string
+        datos:
+          type: object
+          properties:
+            despacho:
+              type: object
+            vehiculoAsignado:
+              type: string
+            plazoGarantizadoHoras:
+              type: integer
+            estadoNuevo:
+              type: string
+
+    RespuestaExitoEntrega:
+      type: object
+      properties:
+        status:
+          type: string
+          example: EXITO
+        mensaje:
+          type: string
+        datos:
+          type: object
+          properties:
+            entrega:
+              type: object
+            liquidacion:
+              type: object
+            saldoFinalFlete:
+              type: number
+
+    RespuestaError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ERROR
+        mensaje:
+          type: string
+        correlationId:
+          type: string

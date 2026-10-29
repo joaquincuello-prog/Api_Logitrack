@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogiTrack — Sistema de Gestión y Liquidación Logística</title>
+  <meta name="description" content="Dashboard logístico inteligente para admisión, despacho en 1 clic y cálculo de indemnizaciones en tiempo real.">
+  
+  <!-- Tipografía moderna Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z'/></svg>">
+</head>
+<body>
+  <!-- Contenedor Principal de la Aplicación -->
+  <div id="app" class="app-layout">
+    
+    <!-- Topbar de Navegación y Control Central -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">LogiTrack <span class="brand-tag">PRO</span></h1>
+          <p class="brand-subtitle">Gestión Logística & Control de Calidad</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Indicador de Salud de la API -->
+        <div id="apiStatusBadge" class="status-indicator" title="Estado de la conexión API">
+          <span class="pulse-dot"></span>
+          <span class="status-text">Conectando...</span>
+        </div>
+
+        <!-- Botón Demo Data -->
+        <button id="btnSeedDemo" class="btn btn-secondary btn-sm" title="Genera encomiendas de prueba para evaluar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <span>Cargar Datos Demo</span>
+        </button>
+
+        <!-- Toggle Modo Oscuro / Claro -->
+        <button id="themeToggle" class="btn-icon" aria-label="Cambiar tema de color" title="Alternar Modo Oscuro / Claro">
+          <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="themeIconMoon" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+
+      <!-- Panel de Métricas / KPIs Superiores -->
+      <section class="kpi-grid" aria-label="Métricas Principales">
+        <div class="kpi-card" id="kpiFacturadoCard">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Facturado</span>
+            <div class="kpi-icon-wrap icon-income">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiTotalFacturado">$0.00</div>
+          <div class="kpi-subtext">Total acumulado de fletes tarifados</div>
+        </div>
+
+        <div class="kpi-card" id="kpiIndemnizadoCard">
+          <div class="kpi-header">
+            <span class="kpi-title">Saldo Indemnizado</span>
+            <div class="kpi-icon-wrap icon-refund">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                <line x1="4" y1="4" x2="20" y2="20"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-value value-warning" id="kpiTotalIndemnizado">$0.00</div>
+          <div class="kpi-subtext">Reintegros por demoras y siniestros</div>
+        </div>
+
+        <div class="kpi-card" id="kpiActivosCard">
+          <div class="kpi-header">
+            <span class="kpi-title">Paquetes Activos</span>
+            <div class="kpi-icon-wrap icon-active">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiPaquetesActivos">0</div>
+          <div class="kpi-subtext"><span id="kpiAdmitidosCount">0</span> en admisión · <span id="kpiTransitoCount">0</span> en ruta</div>
+        </div>
+
+        <div class="kpi-card" id="kpiFlotaCard">
+          <div class="kpi-header">
+            <span class="kpi-title">Distribución de Flota</span>
+            <div class="kpi-icon-wrap icon-fleet">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m4.93 4.93 4.24 4.24"></path>
+                <path d="m14.83 9.17 4.24-4.24"></path>
+                <path d="m14.83 14.83 4.24 4.24"></path>
+                <path d="m9.17 14.83-4.24 4.24"></path>
+                <circle cx="12" cy="12" r="4"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="fleet-badges-container">
+            <div class="fleet-mini-badge" title="Motos (< 5 kg)">
+              <span class="vehicle-icon">🏍️</span>
+              <span class="badge-label">Motos</span>
+              <span class="badge-num" id="flotaMotos">0</span>
+            </div>
+            <div class="fleet-mini-badge" title="Utilitarios (5 a 20 kg)">
+              <span class="vehicle-icon">🚐</span>
+              <span class="badge-label">Utilit.</span>
+              <span class="badge-num" id="flotaUtilitarios">0</span>
+            </div>
+            <div class="fleet-mini-badge" title="Camiones (> 20 kg)">
+              <span class="vehicle-icon">🚛</span>
+              <span class="badge-label">Camión</span>
+              <span class="badge-num" id="flotaCamiones">0</span>
+            </div>
+          </div>
+          <div class="kpi-subtext">Vehículos despachados activamente</div>
+        </div>
+      </section>
+
+      <!-- Layout de Dos Columnas: Admisión/Cotizador (Izq) + Tablero de Gestión (Der) -->
+      <div class="dashboard-columns">
+
+        <!-- Columna Izquierda: Panel de Admisión & Cotizador en Tiempo Real -->
+        <aside class="column-quoter">
+          <div class="panel-card quoter-card">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                  </svg>
+                </div>
+                <h2>Admisión & Cotizador en Vivo</h2>
+              </div>
+              <span class="badge-live-calc">Cálculo en tiempo real</span>
+            </div>
+
+            <!-- Alerta Crítica de Restricción Física (Oculta por defecto) -->
+            <div id="physicalLimitAlert" class="alert-box alert-danger" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div class="alert-content">
+                <strong>Límite de Admisión Superado</strong>
+                <p id="physicalLimitMsg">Las dimensiones no pueden superar 150 cm ni el peso 40 kg.</p>
+              </div>
+            </div>
+
+            <form id="admisionForm" class="form-grid" novalidate>
+              <!-- Cliente -->
+              <div class="form-group full-width">
+                <label for="inputCliente" class="form-label">Cliente / Remitente <span class="required">*</span></label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input type="text" id="inputCliente" class="form-control" placeholder="Ej. Distribuidora Central S.A." required>
+                </div>
+              </div>
+
+              <!-- Dimensiones 3D (Alto, Ancho, Largo) -->
+              <div class="dimensions-header full-width">
+                <span>Dimensiones Físicas (Máx. 150 cm por lado)</span>
+              </div>
+
+              <div class="form-group">
+                <label for="inputAlto" class="form-label">Alto (cm)</label>
+                <input type="number" id="inputAlto" class="form-control" min="1" max="150" step="0.5" value="30" required>
+              </div>
+
+              <div class="form-group">
+                <label for="inputAncho" class="form-label">Ancho (cm)</label>
+                <input type="number" id="inputAncho" class="form-control" min="1" max="150" step="0.5" value="40" required>
+              </div>
+
+              <div class="form-group">
+                <label for="inputLargo" class="form-label">Largo (cm)</label>
+                <input type="number" id="inputLargo" class="form-control" min="1" max="150" step="0.5" value="50" required>
+              </div>
+
+              <!-- Peso Real y Distancia -->
+              <div class="form-group">
+                <label for="inputPeso" class="form-label">Peso Real (kg)</label>
+                <input type="number" id="inputPeso" class="form-control" min="0.1" max="40" step="0.1" value="8.5" required>
+                <span class="field-hint">Máx. 40 kg</span>
+              </div>
+
+              <div class="form-group">
+                <label for="inputDistancia" class="form-label">Distancia (km)</label>
+                <input type="number" id="inputDistancia" class="form-control" min="1" max="5000" step="1" value="120" required>
+                <span class="field-hint" id="hintZona">Provincial ($3500 + $15/km)</span>
+              </div>
+
+              <div class="form-group">
+                <label for="inputValorDeclarado" class="form-label">Valor Declarado ($)</label>
+                <input type="number" id="inputValorDeclarado" class="form-control" min="0" step="100" value="25000">
+                <span class="field-hint">Base de seguro</span>
+              </div>
+
+              <!-- Switches Condicionales (Frágil / Express) -->
+              <div class="switches-row full-width">
+                <label class="switch-container">
+                  <input type="checkbox" id="checkFragil" checked>
+                  <span class="switch-slider"></span>
+                  <span class="switch-label">
+                    <span class="switch-title">📦 Encomienda Frágil</span>
+                    <span class="switch-desc">+15% de recargo</span>
+                  </span>
+                </label>
+
+                <label class="switch-container">
+                  <input type="checkbox" id="checkExpress">
+                  <span class="switch-slider"></span>
+                  <span class="switch-label">
+                    <span class="switch-title">⚡ Envío Express</span>
+                    <span class="switch-desc">+30% recargo (24h)</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Cotizador en Vivo (Live Quoter Preview Box) -->
+              <div class="quoter-live-box full-width">
+                <div class="live-box-header">
+                  <span>Previsualización de Tarifa & Flota</span>
+                  <span id="liveVehicleBadge" class="vehicle-pill pill-utilitario">
+                    <span class="vehicle-icon">🚐</span> Utilitario sugerido
+                  </span>
+                </div>
+
+                <div class="live-metrics-row">
+                  <div class="live-metric">
+                    <span class="metric-label">Peso Volumétrico</span>
+                    <span class="metric-val" id="livePesoVolumetrico">12.00 kg</span>
+                    <span class="metric-sub">(Alto×Ancho×Largo / 5000)</span>
+                  </div>
+                  <div class="live-metric highlight">
+                    <span class="metric-label">Peso Facturable</span>
+                    <span class="metric-val" id="livePesoFacturable">12.00 kg</span>
+                    <span class="metric-sub">Mayor entre Real y Vol.</span>
+                  </div>
+                  <div class="live-metric">
+                    <span class="metric-label">Zona Detectada</span>
+                    <span class="metric-val" id="liveZona">PROVINCIAL</span>
+                    <span class="metric-sub" id="livePlazoEst">48h garantizadas</span>
+                  </div>
+                </div>
+
+                <div class="live-tariff-breakdown">
+                  <div class="breakdown-item">
+                    <span>Tarifa Base (<span id="liveTarifaBaseFormula">3500 + 120km×$15</span>):</span>
+                    <span class="font-mono" id="liveTarifaBase">$5,300.00</span>
+                  </div>
+                  <div class="breakdown-item" id="rowRecargoFragil">
+                    <span>Recargo Frágil (+15%):</span>
+                    <span class="font-mono" id="liveRecargoFragil">$795.00</span>
+                  </div>
+                  <div class="breakdown-item" id="rowRecargoExpress" style="display: none;">
+                    <span>Recargo Express (+30%):</span>
+                    <span class="font-mono" id="liveRecargoExpress">$0.00</span>
+                  </div>
+                  <div class="breakdown-total">
+                    <span>Costo Total a Facturar:</span>
+                    <span class="font-mono total-amount" id="liveCostoTotal">$6,095.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón de Admisión -->
+              <div class="form-actions full-width">
+                <button type="submit" id="btnAdmitir" class="btn btn-primary btn-block">
+                  <span class="btn-spinner" style="display: none;"></span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>Admitir y Tarifar Encomienda</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </aside>
+
+        <!-- Columna Derecha: Tablero de Gestión Operativa -->
+        <section class="column-board">
+          <div class="panel-card board-card">
+            
+            <!-- Barra Superior del Tablero: Búsqueda, Filtros y Vista -->
+            <div class="board-toolbar">
+              <div class="toolbar-search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Buscar por código (LOGI-...) o cliente..." class="search-field">
+                <button id="btnClearSearch" class="btn-clear" style="display: none;">&times;</button>
+              </div>
+
+              <div class="toolbar-actions">
+                <!-- Filtros por Estado Operativo -->
+                <div class="filter-pills" role="tablist" aria-label="Filtro de estados">
+                  <button class="filter-pill active" data-filter="TODOS">
+                    Todos <span class="pill-count" id="countTodos">0</span>
+                  </button>
+                  <button class="filter-pill" data-filter="ADMITIDO">
+                    Admitidos <span class="pill-count" id="countAdmitido">0</span>
+                  </button>
+                  <button class="filter-pill" data-filter="EN_TRANSITO">
+                    En Ruta <span class="pill-count" id="countEnTransito">0</span>
+                  </button>
+                  <button class="filter-pill" data-filter="ENTREGADO">
+                    Entregados <span class="pill-count" id="countEntregado">0</span>
+                  </button>
+                  <button class="filter-pill" data-filter="SINIESTRADO">
+                    Siniestrados <span class="pill-count" id="countSiniestrado">0</span>
+                  </button>
+                </div>
+
+                <!-- Selector de Vista: Tabla / Tarjetas -->
+                <div class="view-toggle" role="group" aria-label="Modo de visualización">
+                  <button id="btnViewTable" class="btn-toggle active" title="Vista Tabla Operativa">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="8" y1="6" x2="21" y2="6"></line>
+                      <line x1="8" y1="12" x2="21" y2="12"></line>
+                      <line x1="8" y1="18" x2="21" y2="18"></line>
+                      <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                      <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                      <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                  </button>
+                  <button id="btnViewCards" class="btn-toggle" title="Vista Tarjetas">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Botón Refrescar -->
+                <button id="btnRefreshBoard" class="btn-icon" title="Refrescar datos del servidor">
+                  <svg id="refreshIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Contenedor del Tablero -->
+            <div id="boardContainer" class="board-content">
+              <!-- Vista Tabla (Por defecto) -->
+              <div id="tableView" class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Código Seguimiento</th>
+                      <th>Cliente</th>
+                      <th>Zona / Tipo</th>
+                      <th>Peso Fact.</th>
+                      <th>Vehículo</th>
+                      <th>Tarifa Flete</th>
+                      <th>Estado</th>
+                      <th class="text-right">Acción Operativa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="encomiendasTableBody">
+                    <!-- Filas dinámicas generadas con JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Vista Tarjetas / Kanban -->
+              <div id="cardsView" class="cards-grid" style="display: none;">
+                <!-- Tarjetas dinámicas generadas con JS -->
+              </div>
+
+              <!-- Estado Vacío (Empty State) -->
+              <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 16s-1.5-2-4-2-4 2-4 2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                  </svg>
+                </div>
+                <h3>No hay encomiendas registradas</h3>
+                <p>Ingresa una nueva encomienda en el cotizador o haz clic en "Cargar Datos Demo".</p>
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('btnSeedDemo').click()">
+                  Cargar Ejemplos del Curso
+                </button>
+              </div>
+
+              <!-- Skeleton Loader para llamadas asíncronas -->
+              <div id="skeletonLoader" class="skeleton-container" style="display: none;">
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Footer con información institucional -->
+    <footer class="app-footer">
+      <div>
+        <strong>LogiTrack API</strong> — Materia: <em>Interfaz de Usuarios & Control de Calidad</em> · 3er Año
+      </div>
+      <div>
+        Integrantes: <strong>Vivas Guillermo</strong> & <strong>Cuello Joaquín</strong>
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL: Registrar Entrega e Indemnización en 1 Clic -->
+  <div id="entregaModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalEntregaTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon">📦</div>
+          <div>
+            <h3 id="modalEntregaTitle" class="modal-title">Registrar Entrega de Encomienda</h3>
+            <p class="modal-subtitle" id="modalEntregaSubtitle">Código: LOGI-XXXXXX-XXXX</p>
+          </div>
+        </div>
+        <button id="btnCloseEntregaModal" class="btn-close" aria-label="Cerrar modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="modalDespachoId">
+        <input type="hidden" id="modalEncomiendaId">
+        <input type="hidden" id="modalCostoTotalFlete">
+        <input type="hidden" id="modalValorDeclarado">
+
+        <!-- Selector de Estado Final -->
+        <div class="form-group">
+          <label class="form-label">Resultado Operativo de la Entrega</label>
+          <div class="status-radio-group">
+            <label class="status-radio-card active">
+              <input type="radio" name="modalEstadoFinal" value="ENTREGADO" checked>
+              <span class="radio-content">
+                <span class="radio-title">✅ Entregado</span>
+                <span class="radio-desc">Recepción exitosa</span>
+              </span>
+            </label>
+            <label class="status-radio-card">
+              <input type="radio" name="modalEstadoFinal" value="DEVUELTO">
+              <span class="radio-content">
+                <span class="radio-title">↩️ Devuelto</span>
+                <span class="radio-desc">Rechazado o ausente</span>
+              </span>
+            </label>
+            <label class="status-radio-card status-danger">
+              <input type="radio" name="modalEstadoFinal" value="SINIESTRADO">
+              <span class="radio-content">
+                <span class="radio-title">⚠️ Siniestrado</span>
+                <span class="radio-desc">Daño / Extravío (100% + Seguro)</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Slider de Horas de Demora -->
+        <div class="slider-group" id="sliderGroupDemora">
+          <div class="slider-header">
+            <label for="inputSliderDemora" class="form-label">Horas de Demora (respecto al plazo garantizado)</label>
+            <span class="slider-value-badge font-mono" id="sliderValDisplay">0 horas</span>
+          </div>
+
+          <div class="slider-wrapper">
+            <input type="range" id="inputSliderDemora" class="custom-range" min="0" max="72" step="1" value="0">
+          </div>
+
+          <div class="slider-scale-ticks">
+            <span class="tick active" data-val="0">0h (En término)</span>
+            <span class="tick" data-val="24">24h (20% reintegro)</span>
+            <span class="tick" data-val="48">48h (50% reintegro)</span>
+            <span class="tick" data-val="72">>48h (100% reintegro)</span>
+          </div>
+        </div>
+
+        <!-- Panel de Previsualización Interactiva de Liquidación -->
+        <div class="indemnizacion-preview-box">
+          <div class="preview-header">
+            <span>Liquidación de Indemnización en Tiempo Real</span>
+            <span id="previewPorcentajeBadge" class="porcentaje-pill pill-zero">0% Reintegro</span>
+          </div>
+
+          <div class="preview-grid">
+            <div class="preview-item">
+              <span class="p-label">Flete Original:</span>
+              <span class="p-value font-mono" id="prevCostoFlete">$0.00</span>
+            </div>
+            <div class="preview-item">
+              <span class="p-label">Reintegro Flete:</span>
+              <span class="p-value font-mono text-warning" id="prevIndemnizacionFlete">-$0.00</span>
+            </div>
+            <div class="preview-item">
+              <span class="p-label">Cobertura Seguro:</span>
+              <span class="p-value font-mono text-danger" id="prevIndemnizacionSeguro">+$0.00</span>
+            </div>
+            <div class="preview-item highlight">
+              <span class="p-label">Total a Indemnizar al Cliente:</span>
+              <span class="p-value font-mono text-danger" id="prevTotalIndemnizado">$0.00</span>
+            </div>
+            <div class="preview-item full-width balance-item">
+              <span class="p-label">Saldo Final a Percibir por LogiTrack:</span>
+              <span class="p-value font-mono text-success" id="prevSaldoFinal">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnCancelEntrega" class="btn btn-secondary">Cancelar</button>
+        <button id="btnConfirmarEntrega" class="btn btn-success">
+          <span class="btn-spinner" style="display: none;"></span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Confirmar y Liquidar Entrega</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL / DRAWER: Detalle Completo de Encomienda & Trazabilidad -->
+  <div id="detalleModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalDetalleTitle">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon">📋</div>
+          <div>
+            <h3 id="modalDetalleTitle" class="modal-title">Detalle Completo de Encomienda</h3>
+            <p class="modal-subtitle" id="modalDetalleCodigo">LOGI-...</p>
+          </div>
+        </div>
+        <button id="btnCloseDetalleModal" class="btn-close" aria-label="Cerrar modal">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modalDetalleBody">
+        <!-- Contenido dinámico inyectado con JS -->
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnCloseDetalleFooter" class="btn btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast Flotantes -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Script Principal de la SPA -->
+  <script src="js/app.js"></script>
+</body>
+</html>
