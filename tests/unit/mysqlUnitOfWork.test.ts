@@ -1,9 +1,11 @@
 import { MySqlUnitOfWork } from '../../src/infrastructure/persistence/MySqlUnitOfWork';
+import { MySqlEncomiendaRepository } from '../../src/repositories/MySqlEncomiendaRepository';
 import { pool } from '../../src/config/database';
 
 jest.mock('../../src/config/database', () => ({
   pool: {
-    getConnection: jest.fn()
+    getConnection: jest.fn(),
+    execute: jest.fn()
   }
 }));
 
@@ -13,7 +15,8 @@ describe('MySqlUnitOfWork - Transacciones ACID', () => {
     beginTransaction: jest.fn(),
     commit: jest.fn(),
     rollback: jest.fn(),
-    release: jest.fn()
+    release: jest.fn(),
+    execute: jest.fn()
   };
 
   beforeEach(() => {
@@ -45,5 +48,34 @@ describe('MySqlUnitOfWork - Transacciones ACID', () => {
     expect(mockConnection.commit).not.toHaveBeenCalled();
     expect(mockConnection.rollback).toHaveBeenCalled();
     expect(mockConnection.release).toHaveBeenCalled();
+  });
+
+  test('Propaga la conexión transaccional al repositorio mediante AsyncLocalStorage', async () => {
+    const repository = new MySqlEncomiendaRepository();
+    mockConnection.execute.mockResolvedValueOnce([[{ id: 1, codigo_seguimiento: 'LOGI-123' }]]);
+
+    await uow.runInTransaction(async () => {
+      // Esta consulta debe ejecutarse sobre mockConnection (la conexión con transacción), NO sobre pool
+      await repository.obtenerEncomiendaPorId(1);
+    });
+
+    expect(mockConnection.execute).toHaveBeenCalledWith(
+      expect.stringContaining('SELECT * FROM encomiendas WHERE id = ?'),
+      [1]
+    );
+    expect(pool.execute).not.toHaveBeenCalled();
+  });
+
+  test('Fuera de una transacción, el repositorio ejecuta consultas sobre el pool general', async () => {
+    const repository = new MySqlEncomiendaRepository();
+    (pool.execute as jest.Mock).mockResolvedValueOnce([[{ id: 2, codigo_seguimiento: 'LOGI-456' }]]);
+
+    await repository.obtenerEncomiendaPorId(2);
+
+    expect(pool.execute).toHaveBeenCalledWith(
+      expect.stringContaining('SELECT * FROM encomiendas WHERE id = ?'),
+      [2]
+    );
+    expect(mockConnection.execute).not.toHaveBeenCalled();
   });
 });

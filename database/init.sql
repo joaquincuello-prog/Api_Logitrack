@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS encomiendas (
     recargo_express DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     costo_total DECIMAL(10,2) NOT NULL,
     estado ENUM('ADMITIDO', 'EN_TRANSITO', 'ENTREGADO', 'DEVUELTO', 'SINIESTRADO') NOT NULL DEFAULT 'ADMITIDO',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_encomiendas_estado (estado),
+    INDEX idx_encomiendas_cliente (cliente)
 );
 
 -- 2. Tabla de Despachos (Asignación de Vehículo)
@@ -36,6 +38,7 @@ CREATE TABLE IF NOT EXISTS despachos (
     vehiculo_asignado ENUM('MOTO', 'UTILITARIO', 'CAMION') NOT NULL,
     plazo_garantizado_horas INT NOT NULL,
     fecha_despacho TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_despachos_encomienda UNIQUE (encomienda_id),
     FOREIGN KEY (encomienda_id) REFERENCES encomiendas(id) ON DELETE CASCADE
 );
 
@@ -50,5 +53,6 @@ CREATE TABLE IF NOT EXISTS entregas (
     indemnizacion_flete DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     indemnizacion_seguro DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     total_indemnizado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    CONSTRAINT uk_entregas_despacho UNIQUE (despacho_id),
     FOREIGN KEY (despacho_id) REFERENCES despachos(id) ON DELETE CASCADE
 );

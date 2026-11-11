@@ -2,8 +2,19 @@ import { IEncomiendaRepository } from './IEncomiendaRepository';
 import { Encomienda, Despacho, Entrega, EstadoEncomienda, EstadisticasEncomiendas } from '../models/types';
 import { pool } from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { transactionStorage } from '../infrastructure/persistence/transactionContext';
 
 export class MySqlEncomiendaRepository implements IEncomiendaRepository {
+  /**
+   * Obtiene el ejecutor de consultas SQL:
+   * Si la operación se está ejecutando dentro de un UnitOfWork (transacción activa),
+   * retorna la PoolConnection de dicha transacción. De lo contrario, retorna el pool general.
+   */
+  private getExecutor(): { execute: typeof pool.execute } {
+    const activeConnection = transactionStorage.getStore();
+    return (activeConnection as unknown as { execute: typeof pool.execute }) ?? pool;
+  }
+
   async crearEncomienda(encomienda: Omit<Encomienda, 'id' | 'fechaCreacion'>): Promise<Encomienda> {
     const query = `
       INSERT INTO encomiendas (
@@ -35,7 +46,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
       encomienda.estado
     ];
 
-    const [result] = await pool.execute<ResultSetHeader>(query, values);
+    const [result] = await this.getExecutor().execute<ResultSetHeader>(query, values);
     return {
       ...encomienda,
       id: result.insertId,
@@ -44,7 +55,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerEncomiendaPorId(id: number): Promise<Encomienda | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT * FROM encomiendas WHERE id = ?',
       [id]
     );
@@ -54,7 +65,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerEncomiendaPorCodigo(codigo: string): Promise<Encomienda | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT * FROM encomiendas WHERE codigo_seguimiento = ?',
       [codigo]
     );
@@ -71,7 +82,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
       params.push(estado);
     }
     query += ' ORDER BY id ASC';
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params);
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(query, params);
     return rows.map(row => this.mapRowToEncomienda(row));
   }
 
@@ -79,9 +90,8 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
     return this.obtenerEncomiendas(estado);
   }
 
-
   async actualizarEstadoEncomienda(id: number, estado: Encomienda['estado']): Promise<boolean> {
-    const [result] = await pool.execute<ResultSetHeader>(
+    const [result] = await this.getExecutor().execute<ResultSetHeader>(
       'UPDATE encomiendas SET estado = ? WHERE id = ?',
       [estado, id]
     );
@@ -93,7 +103,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
       INSERT INTO despachos (encomienda_id, vehiculo_asignado, plazo_garantizado_horas)
       VALUES (?, ?, ?)
     `;
-    const [result] = await pool.execute<ResultSetHeader>(query, [
+    const [result] = await this.getExecutor().execute<ResultSetHeader>(query, [
       despacho.encomiendaId,
       despacho.vehiculoAsignado,
       despacho.plazoGarantizadoHoras
@@ -107,7 +117,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerDespachoPorId(id: number): Promise<Despacho | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT * FROM despachos WHERE id = ?',
       [id]
     );
@@ -122,7 +132,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerDespachoPorEncomiendaId(encomiendaId: number): Promise<Despacho | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT * FROM despachos WHERE encomienda_id = ?',
       [encomiendaId]
     );
@@ -155,7 +165,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
       entrega.totalIndemnizado
     ];
 
-    const [result] = await pool.execute<ResultSetHeader>(query, values);
+    const [result] = await this.getExecutor().execute<ResultSetHeader>(query, values);
     return {
       ...entrega,
       id: result.insertId
@@ -163,7 +173,7 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerEntregaPorDespachoId(despachoId: number): Promise<Entrega | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT * FROM entregas WHERE despacho_id = ?',
       [despachoId]
     );
@@ -182,15 +192,15 @@ export class MySqlEncomiendaRepository implements IEncomiendaRepository {
   }
 
   async obtenerEstadisticas(): Promise<EstadisticasEncomiendas> {
-    const [encRows] = await pool.execute<RowDataPacket[]>(
+    const [encRows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT COUNT(*) as totalEncomiendas, COALESCE(SUM(costo_total), 0) as totalRecaudado FROM encomiendas'
     );
 
-    const [entRows] = await pool.execute<RowDataPacket[]>(
+    const [entRows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT COALESCE(SUM(total_indemnizado), 0) as totalIndemnizado FROM entregas'
     );
 
-    const [flotaRows] = await pool.execute<RowDataPacket[]>(
+    const [flotaRows] = await this.getExecutor().execute<RowDataPacket[]>(
       'SELECT vehiculo_asignado, COUNT(*) as cantidad FROM despachos GROUP BY vehiculo_asignado'
     );
 
