@@ -9,7 +9,7 @@ const defaultUseInMemory = (isVercel && (!process.env.DB_HOST || process.env.DB_
   : 'false';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z.string().default('development'),
   PORT: z.coerce.number().default(3000),
   CORS_ORIGIN: z.string().default('*'),
   USE_IN_MEMORY_DB: z.string().default(defaultUseInMemory),
