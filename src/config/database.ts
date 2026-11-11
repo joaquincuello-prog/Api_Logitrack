@@ -1,14 +1,13 @@
 import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { ENV } from '../infrastructure/config/env';
+import { Logger } from '../infrastructure/logging/logger';
 
 export const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'logitrack_db',
+  host: ENV.DB_HOST,
+  port: ENV.DB_PORT,
+  user: ENV.DB_USER,
+  password: ENV.DB_PASSWORD,
+  database: ENV.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -20,7 +19,9 @@ export async function testDbConnection(): Promise<boolean> {
     connection.release();
     return true;
   } catch (error) {
-    console.warn('⚠️ No se pudo conectar a MySQL con las credenciales actuales. Modo sin conexión o test.');
+    Logger.warn('No se pudo conectar a MySQL con las credenciales configuradas. Modo sin conexión o test activo.', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return false;
   }
 }
