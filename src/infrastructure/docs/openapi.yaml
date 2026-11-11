@@ -35,6 +35,46 @@ paths:
                     type: string
                     format: date-time
 
+  /api/auth/login:
+    post:
+      summary: Iniciar sesión o generar token JWT con rol
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                  example: operador1
+                role:
+                  type: string
+                  enum: [ADMIN, OPERADOR, CONDUCTOR, CLIENTE]
+                  default: OPERADOR
+      responses:
+        '200':
+          description: Token emitido exitosamente
+        '400':
+          description: Datos inválidos
+
+  /api/auth/perfil:
+    get:
+      summary: Consultar datos del usuario autenticado
+      tags:
+        - Autenticación
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+        '401':
+          description: No autorizado
+
   /api/encomiendas/admitir:
     post:
       summary: Admisión y cálculo tarifario de encomienda
@@ -391,3 +431,10 @@ components:
           type: string
         correlationId:
           type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Ingrese el token JWT obtenido en /api/auth/login

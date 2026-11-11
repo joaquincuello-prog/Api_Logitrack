@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import encomiendaRoutes from './presentation/http/routes/encomiendaRoutes';
+import authRoutes from './presentation/http/routes/authRoutes';
 import { errorHandler } from './presentation/http/middlewares/errorHandlerMiddleware';
 import { correlationIdMiddleware } from './presentation/http/middlewares/correlationIdMiddleware';
 import { rateLimiterMiddleware } from './presentation/http/middlewares/rateLimiterMiddleware';
@@ -42,8 +43,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', servicio: 'LogiTrack API', timestamp: new Date() });
 });
 
-// 9. Rutas principales de la API
+// 9. Rutas de autenticación y sesiones
+app.use('/api/auth', authRoutes);
+
+// 10. Rutas principales de la API
 app.use('/api/encomiendas', encomiendaRoutes);
 
-// 10. Manejo centralizado y desacoplado de errores
+// 11. Manejo centralizado y desacoplado de errores
 app.use(errorHandler);

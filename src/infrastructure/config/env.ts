@@ -14,7 +14,9 @@ const envSchema = z.object({
   DB_PASSWORD: z.string().default(''),
   DB_NAME: z.string().default('logitrack_db'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),
-  RATE_LIMIT_MAX: z.coerce.number().default(100)
+  RATE_LIMIT_MAX: z.coerce.number().default(100),
+  JWT_SECRET: z.string().default('logitrack-super-secret-key-change-in-production'),
+  AUTH_ENABLED: z.string().default('false')
 });
 
 export const ENV = envSchema.parse(process.env);

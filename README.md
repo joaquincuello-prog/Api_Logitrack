@@ -196,13 +196,16 @@ Registra el cumplimiento de la entrega y calcula la indemnización si hubo mora 
 
 ---
 
-### 3.6. Listado de Encomiendas (con Filtro Opcional)
-Permite listar todas las encomiendas o filtrar por estado operativo (`ADMITIDO`, `EN_TRANSITO`, `ENTREGADO`, `DEVUELTO`, `SINIESTRADO`).
+### 3.6. Listado de Encomiendas (con Paginación y Filtros)
+Permite listar encomiendas con paginación y filtros opcionales por estado operativo (`ADMITIDO`, `EN_TRANSITO`, `ENTREGADO`, `DEVUELTO`, `SINIESTRADO`) o nombre de cliente.
 
 * **Método:** `GET`
-* **Ruta:** `/api/encomiendas` (o `/api/encomiendas?estado=ADMITIDO`)
+* **Ruta:** `/api/encomiendas` (ej. `/api/encomiendas?page=1&limit=10&estado=ADMITIDO&cliente=central`)
 * **Parámetros de consulta (Query params):**
+  * `page` (opcional, default: `1`): Número de página.
+  * `limit` (opcional, default: `50`): Cantidad de elementos por página.
   * `estado` (opcional): Filtro por estado (`ADMITIDO`, `EN_TRANSITO`, `ENTREGADO`, `DEVUELTO`, `SINIESTRADO`).
+  * `cliente` (opcional): Búsqueda por texto en nombre de cliente.
 * **Respuesta exitosa (200 OK):**
   ```json
   {
@@ -215,13 +218,42 @@ Permite listar todas las encomiendas o filtrar por estado operativo (`ADMITIDO`,
         "costoTotal": 6095.0,
         "estado": "ADMITIDO"
       }
-    ]
+    ],
+    "paginacion": {
+      "total": 1,
+      "pagina": 1,
+      "limite": 10,
+      "totalPaginas": 1
+    }
   }
   ```
 
 ---
 
-### 3.7. Métricas y Estadísticas Globales
+### 3.7. Rastreo Público de Encomienda (Tracking)
+Permite a cualquier cliente consultar el estado y recorrido de su envío únicamente mediante el código de seguimiento, sin requerir credenciales internas de la empresa.
+
+* **Método:** `GET`
+* **Ruta:** `/api/encomiendas/tracking/:codigo` (ej. `/api/encomiendas/tracking/LOGI-839211-4821`)
+* **Respuesta exitosa (200 OK):** Detalle consolidado del paquete, despacho asociado y liquidación de entrega.
+
+---
+
+### 3.8. Autenticación y Control de Acceso por Roles (RBAC)
+La API cuenta con un módulo de autenticación JWT y control de acceso basado en roles (`ADMIN`, `OPERADOR`, `CONDUCTOR`, `CLIENTE`).
+
+* **Iniciar sesión / Obtener Token:**
+  * **Método:** `POST`
+  * **Ruta:** `/api/auth/login`
+  * **Body:** `{"username": "operador1", "role": "OPERADOR"}`
+* **Ver perfil autenticado:**
+  * **Método:** `GET`
+  * **Ruta:** `/api/auth/perfil`
+  * **Header:** `Authorization: Bearer <token>`
+
+---
+
+### 3.9. Métricas y Estadísticas Globales
 Devuelve las estadísticas consolidadas del sistema para paneles de monitoreo y frontend: total de encomiendas, total recaudado en fletes, total indemnizado por demoras o siniestros, y distribución de flota asignada.
 
 * **Método:** `GET`
