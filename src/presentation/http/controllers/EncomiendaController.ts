@@ -4,6 +4,7 @@ import { AdmitirEncomiendaUseCase } from '../../../core/application/use-cases/Ad
 import { DespacharEncomiendaUseCase } from '../../../core/application/use-cases/DespacharEncomiendaUseCase';
 import { RegistrarEntregaUseCase } from '../../../core/application/use-cases/RegistrarEntregaUseCase';
 import { ConsultarEncomiendaUseCase } from '../../../core/application/use-cases/ConsultarEncomiendaUseCase';
+import { RastrearEncomiendaUseCase } from '../../../core/application/use-cases/RastrearEncomiendaUseCase';
 import { ListarEncomiendasUseCase } from '../../../core/application/use-cases/ListarEncomiendasUseCase';
 import { ObtenerEstadisticasUseCase } from '../../../core/application/use-cases/ObtenerEstadisticasUseCase';
 
@@ -77,15 +78,42 @@ export class EncomiendaController {
     }
   }
 
+  static async rastrear(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const repo = getEncomiendaRepository();
+      const useCase = new RastrearEncomiendaUseCase(repo);
+      const resultado = await useCase.execute(req.params.codigo);
+
+      res.status(200).json({
+        status: 'EXITO',
+        datos: resultado
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async listar(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const repo = getEncomiendaRepository();
       const useCase = new ListarEncomiendasUseCase(repo);
-      const encomiendas = await useCase.execute(req.query.estado as string | undefined);
+
+      const page = req.query.page ? Math.max(1, Number(req.query.page)) : undefined;
+      const limit = req.query.limit ? Math.max(1, Math.min(100, Number(req.query.limit))) : undefined;
+      const cliente = req.query.cliente ? String(req.query.cliente) : undefined;
+      const estado = req.query.estado ? String(req.query.estado) : undefined;
+
+      const resultado = await useCase.execute({
+        estado,
+        cliente,
+        page: page ?? 1,
+        limit: limit ?? 50
+      });
 
       res.status(200).json({
         status: 'EXITO',
-        datos: encomiendas
+        datos: resultado.encomiendas,
+        paginacion: resultado.paginacion
       });
     } catch (error) {
       next(error);

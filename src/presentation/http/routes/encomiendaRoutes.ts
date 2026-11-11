@@ -13,11 +13,14 @@ router.post('/despachar', validateBody(despachoSchema), EncomiendaController.des
 // Funcionalidad 3: Registro de Entrega e Indemnización
 router.post('/entregar', validateBody(entregaSchema), EncomiendaController.registrarEntrega);
 
-// Listado de encomiendas con filtro opcional por estado
+// Listado de encomiendas con paginación y filtros opcionales (?page=1&limit=20&estado=...&cliente=...)
 router.get('/', EncomiendaController.listar);
 
 // Estadísticas operativas y financieras
 router.get('/estadisticas', EncomiendaController.obtenerEstadisticas);
+
+// Consulta de Encomienda por código de seguimiento (Tracking público)
+router.get('/tracking/:codigo', EncomiendaController.rastrear);
 
 // Consulta de Encomienda completa por ID
 router.get('/:id', EncomiendaController.obtenerPorId);

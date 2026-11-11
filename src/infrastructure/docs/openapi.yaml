@@ -118,7 +118,7 @@ paths:
 
   /api/encomiendas:
     get:
-      summary: Listar encomiendas con filtro opcional por estado
+      summary: Listar encomiendas con paginación y filtros opcionales
       tags:
         - Encomiendas
       parameters:
@@ -128,9 +128,29 @@ paths:
           schema:
             type: string
             enum: [ADMITIDO, EN_TRANSITO, ENTREGADO, DEVUELTO, SINIESTRADO]
+        - name: cliente
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filtro de búsqueda por nombre de cliente
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+          description: Cantidad de resultados por página
       responses:
         '200':
-          description: Lista de encomiendas
+          description: Lista de encomiendas paginadas
           content:
             application/json:
               schema:
@@ -143,6 +163,21 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Encomienda'
+                  paginacion:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 25
+                      pagina:
+                        type: integer
+                        example: 1
+                      limite:
+                        type: integer
+                        example: 10
+                      totalPaginas:
+                        type: integer
+                        example: 3
 
   /api/encomiendas/estadisticas:
     get:
@@ -156,6 +191,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Estadisticas'
+
+  /api/encomiendas/tracking/{codigo}:
+    get:
+      summary: Rastrear encomienda por código de seguimiento público (Tracking)
+      tags:
+        - Encomiendas
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema:
+            type: string
+            example: LOGI-123456-7890
+      responses:
+        '200':
+          description: Historial y estado de la encomienda
+        '404':
+          description: Encomienda no encontrada con el código proporcionado
 
   /api/encomiendas/{id}:
     get:

@@ -423,6 +423,44 @@ describe('Pruebas de Integración y Sistema - LogiTrack API', () => {
         camiones: 1
       });
     });
+
+    test('PI-09: Rastreo público por código de seguimiento (/tracking/:codigo)', async () => {
+      const admision = await request(app)
+        .post('/api/encomiendas/admitir')
+        .send({
+          cliente: 'Librería Central',
+          alto: 10,
+          ancho: 15,
+          largo: 20,
+          pesoReal: 2,
+          distanciaKm: 30,
+          esFragil: false,
+          esExpress: false,
+          valorDeclarado: 5000
+        });
+
+      const codigo = admision.body.datos.codigoSeguimiento;
+      const resTracking = await request(app).get(`/api/encomiendas/tracking/${codigo}`);
+
+      expect(resTracking.status).toBe(200);
+      expect(resTracking.body.status).toBe('EXITO');
+      expect(resTracking.body.datos.encomienda.codigoSeguimiento).toBe(codigo);
+      expect(resTracking.body.datos.encomienda.cliente).toBe('Librería Central');
+
+      const res404 = await request(app).get('/api/encomiendas/tracking/LOGI-NO-EXISTE');
+      expect(res404.status).toBe(404);
+      expect(res404.body.status).toBe('ERROR');
+    });
+
+    test('PI-10: Paginación y filtro de cliente en listado (/api/encomiendas?page=1&limit=2)', async () => {
+      const res = await request(app).get('/api/encomiendas?page=1&limit=2');
+      expect(res.status).toBe(200);
+      expect(res.body.datos.length).toBeLessThanOrEqual(2);
+      expect(res.body.paginacion).toBeDefined();
+      expect(res.body.paginacion.pagina).toBe(1);
+      expect(res.body.paginacion.limite).toBe(2);
+    });
   });
 });
+
 
