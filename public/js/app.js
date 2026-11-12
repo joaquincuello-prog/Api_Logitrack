@@ -5,6 +5,38 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  const topbar = document.querySelector('.topbar');
+  let previousScrollY = window.scrollY;
+
+  const showTopbar = () => topbar.classList.remove('is-hidden');
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const scrollDelta = currentScrollY - previousScrollY;
+
+    if (currentScrollY <= 10) {
+      showTopbar();
+      previousScrollY = currentScrollY;
+      return;
+    }
+
+    if (Math.abs(scrollDelta) <= 5) return;
+
+    if (scrollDelta < 0) {
+      showTopbar();
+    } else {
+      topbar.classList.add('is-hidden');
+    }
+
+    previousScrollY = currentScrollY;
+  }, { passive: true });
+
+  document.addEventListener('pointermove', (event) => {
+    if (event.clientY <= 16) showTopbar();
+  }, { passive: true });
+
+  topbar.addEventListener('focusin', showTopbar);
+
   // Configuración de la API
   const API_BASE = window.location.origin.includes('http') && !window.location.origin.startsWith('file:')
     ? window.location.origin

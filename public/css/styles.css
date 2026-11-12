@@ -152,6 +152,18 @@ body {
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   flex-wrap: wrap;
+  transition: transform 220ms ease;
+  will-change: transform;
+
+  &.is-hidden {
+    transform: translateY(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar {
+    transition: none;
+  }
 }
 
 .topbar-brand {
