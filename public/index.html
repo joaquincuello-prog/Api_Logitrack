@@ -1,30 +1,37 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LogiTrack PRO — Sistema Modular de Gestión y Liquidación Logística</title>
-  <meta name="description" content="Plataforma SPA de gestión logística dividida en 3 módulos operativos: Admisión en Mostrador, Monitor de Despacho y Liquidación de Entregas.">
-  
+  <meta name="description"
+    content="Plataforma SPA de gestión logística dividida en 3 módulos operativos: Admisión en Mostrador, Monitor de Despacho y Liquidación de Entregas.">
+
   <!-- Tipografía moderna Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Estilos CSS -->
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z'/></svg>">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z'/></svg>">
 </head>
+
 <body>
   <div id="app" class="app-layout">
-    
+
     <!-- ====================================================================
          TOPBAR PRINCIPAL & NAVEGACIÓN POR ROLES (3 VISTAS / MÓDULOS)
          ==================================================================== -->
     <header class="topbar">
       <div class="topbar-brand">
         <div class="brand-logo">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <rect x="1" y="3" width="15" height="13"></rect>
             <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
             <circle cx="5.5" cy="18.5" r="2.5"></circle>
@@ -39,15 +46,8 @@
 
       <!-- Barra de Navegación de las 3 Pantallas / Módulos -->
       <nav class="module-nav" role="tablist" aria-label="Módulos del Sistema">
-        <button
-          type="button"
-          class="module-tab active"
-          data-target="view-admision"
-          role="tab"
-          aria-selected="true"
-          aria-controls="view-admision"
-          id="tabBtnAdmision"
-        >
+        <button type="button" class="module-tab active" data-target="view-admision" role="tab" aria-selected="true"
+          aria-controls="view-admision" id="tabBtnAdmision">
           <span class="tab-dot dot-green"></span>
           <div class="tab-text-group">
             <span class="tab-title">1. Admisión y Carga</span>
@@ -55,15 +55,8 @@
           </div>
         </button>
 
-        <button
-          type="button"
-          class="module-tab"
-          data-target="view-monitor"
-          role="tab"
-          aria-selected="false"
-          aria-controls="view-monitor"
-          id="tabBtnMonitor"
-        >
+        <button type="button" class="module-tab" data-target="view-monitor" role="tab" aria-selected="false"
+          aria-controls="view-monitor" id="tabBtnMonitor">
           <span class="tab-dot dot-blue"></span>
           <div class="tab-text-group">
             <span class="tab-title">2. Monitor de Encomiendas</span>
@@ -72,21 +65,15 @@
           <span class="tab-badge" id="navBadgeTotal" title="Total de encomiendas registradas">0</span>
         </button>
 
-        <button
-          type="button"
-          class="module-tab"
-          data-target="view-entregas"
-          role="tab"
-          aria-selected="false"
-          aria-controls="view-entregas"
-          id="tabBtnEntregas"
-        >
+        <button type="button" class="module-tab" data-target="view-entregas" role="tab" aria-selected="false"
+          aria-controls="view-entregas" id="tabBtnEntregas">
           <span class="tab-dot dot-orange"></span>
           <div class="tab-text-group">
             <span class="tab-title">3. Entregas e Indemnizaciones</span>
             <span class="tab-role">Logística y Cierre</span>
           </div>
-          <span class="tab-badge badge-warning" id="navBadgeTransito" title="Encomiendas en tránsito pendientes de entrega">0</span>
+          <span class="tab-badge badge-warning" id="navBadgeTransito"
+            title="Encomiendas en tránsito pendientes de entrega">0</span>
         </button>
       </nav>
 
@@ -99,9 +86,12 @@
         </div>
 
         <!-- Botón Demo Data -->
-        <button id="btnSeedDemo" class="btn btn-secondary btn-sm" title="Genera encomiendas de prueba para evaluar los 3 módulos">
+        <button id="btnSeedDemo" class="btn btn-secondary btn-sm"
+          title="Genera encomiendas de prueba para evaluar los 3 módulos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+            </path>
             <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
             <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
@@ -109,8 +99,10 @@
         </button>
 
         <!-- Toggle Modo Oscuro / Claro -->
-        <button id="themeToggle" class="btn-icon" aria-label="Cambiar tema de color" title="Alternar Modo Oscuro / Claro">
-          <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button id="themeToggle" class="btn-icon" aria-label="Cambiar tema de color"
+          title="Alternar Modo Oscuro / Claro">
+          <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -121,7 +113,8 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
-          <svg id="themeIconMoon" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+          <svg id="themeIconMoon" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" style="display:none;">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
@@ -144,7 +137,8 @@
             <div class="screen-header-info">
               <span class="role-pill pill-green">🟢 MÓDULO DE MOSTRADOR · OPERADOR DE CARGA</span>
               <h2 class="screen-title">Admisión y Tarifación de Encomiendas</h2>
-              <p class="screen-subtitle">Ingresa los datos del remitente y las dimensiones del paquete. El sistema audita restricciones físicas y calcula la tarifa en tiempo real.</p>
+              <p class="screen-subtitle">Ingresa los datos del remitente y las dimensiones del paquete. El sistema
+                audita restricciones físicas y calcula la tarifa en tiempo real.</p>
             </div>
             <div class="limits-reference-card">
               <div class="limit-ref-title">Reglas de Admisión Física</div>
@@ -181,7 +175,8 @@
             </svg>
             <div class="alert-content">
               <strong> Admisión Bloqueada: Límite Físico Operativo Superado</strong>
-              <p id="physicalLimitMsg">Ninguna arista puede superar los 150 cm ni el peso real puede exceder los 40 kg.</p>
+              <p id="physicalLimitMsg">Ninguna arista puede superar los 150 cm ni el peso real puede exceder los 40 kg.
+              </p>
             </div>
           </div>
 
@@ -192,7 +187,9 @@
                 <div class="panel-title-group">
                   <div class="panel-icon icon-green">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                      </path>
                       <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                       <line x1="12" y1="22.08" x2="12" y2="12"></line>
                     </svg>
@@ -216,14 +213,8 @@
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    <input
-                      type="text"
-                      id="inputCliente"
-                      class="form-control-lg"
-                      placeholder="Ej. Distribuidora Central S.A. / Juan Pérez"
-                      autocomplete="off"
-                      required
-                    >
+                    <input type="text" id="inputCliente" class="form-control-lg"
+                      placeholder="Ej. Distribuidora Central S.A. / Juan Pérez" autocomplete="off" required>
                   </div>
                   <span class="field-hint-lg">Razón social o nombre completo del remitente</span>
                 </div>
@@ -234,14 +225,8 @@
                   </label>
                   <div class="input-with-unit-lg">
                     <span class="unit-prefix">$</span>
-                    <input
-                      type="number"
-                      id="inputValorDeclarado"
-                      class="form-control-lg font-mono"
-                      min="0"
-                      step="500"
-                      value="25000"
-                    >
+                    <input type="number" id="inputValorDeclarado" class="form-control-lg font-mono" min="0" step="500"
+                      value="25000">
                   </div>
                   <span class="field-hint-lg">Monto cubierto por seguro ante siniestro o extravío</span>
                 </div>
@@ -258,7 +243,8 @@
                   <div class="form-group-lg">
                     <label for="inputAlto" class="form-label-lg">Alto</label>
                     <div class="input-with-unit-lg">
-                      <input type="number" id="inputAlto" class="form-control-lg font-mono" min="1" max="150" step="0.5" value="30" required>
+                      <input type="number" id="inputAlto" class="form-control-lg font-mono" min="1" max="150" step="0.5"
+                        value="30" required>
                       <span class="unit-suffix">cm</span>
                     </div>
                     <span class="field-hint-lg" id="hintAlto">Máx. 150 cm</span>
@@ -269,7 +255,8 @@
                   <div class="form-group-lg">
                     <label for="inputAncho" class="form-label-lg">Ancho</label>
                     <div class="input-with-unit-lg">
-                      <input type="number" id="inputAncho" class="form-control-lg font-mono" min="1" max="150" step="0.5" value="40" required>
+                      <input type="number" id="inputAncho" class="form-control-lg font-mono" min="1" max="150"
+                        step="0.5" value="40" required>
                       <span class="unit-suffix">cm</span>
                     </div>
                     <span class="field-hint-lg" id="hintAncho">Máx. 150 cm</span>
@@ -280,7 +267,8 @@
                   <div class="form-group-lg">
                     <label for="inputLargo" class="form-label-lg">Largo</label>
                     <div class="input-with-unit-lg">
-                      <input type="number" id="inputLargo" class="form-control-lg font-mono" min="1" max="150" step="0.5" value="50" required>
+                      <input type="number" id="inputLargo" class="form-control-lg font-mono" min="1" max="150"
+                        step="0.5" value="50" required>
                       <span class="unit-suffix">cm</span>
                     </div>
                     <span class="field-hint-lg" id="hintLargo">Máx. 150 cm</span>
@@ -295,7 +283,8 @@
                     ⚖️ Peso Real en Balanza (kg) <span class="required">*</span>
                   </label>
                   <div class="input-with-unit-lg">
-                    <input type="number" id="inputPeso" class="form-control-lg font-mono" min="0.1" max="40" step="0.1" value="8.5" required>
+                    <input type="number" id="inputPeso" class="form-control-lg font-mono" min="0.1" max="40" step="0.1"
+                      value="8.5" required>
                     <span class="unit-suffix">kg</span>
                   </div>
                   <span class="field-hint-lg" id="hintPeso">Capacidad máxima admitida: <strong>40 kg</strong></span>
@@ -306,10 +295,12 @@
                     📍 Distancia de Envío (km) <span class="required">*</span>
                   </label>
                   <div class="input-with-unit-lg">
-                    <input type="number" id="inputDistancia" class="form-control-lg font-mono" min="1" max="5000" step="1" value="120" required>
+                    <input type="number" id="inputDistancia" class="form-control-lg font-mono" min="1" max="5000"
+                      step="1" value="120" required>
                     <span class="unit-suffix">km</span>
                   </div>
-                  <span class="field-hint-lg highlight-hint" id="hintZona">Zona Provincial (50 a 300 km): Base $3.500 + $15/km</span>
+                  <span class="field-hint-lg highlight-hint" id="hintZona">Zona Provincial (50 a 300 km): Base $3.500 +
+                    $15/km</span>
                 </div>
               </div>
 
@@ -364,7 +355,8 @@
                   </div>
                   <div>
                     <h3>2. Panel de Auditoría y Desglose de Cálculo en Tiempo Real</h3>
-                    <p class="panel-subtitle">Explicación transparente paso a paso de peso facturable, zona tarifaria y recargos</p>
+                    <p class="panel-subtitle">Explicación transparente paso a paso de peso facturable, zona tarifaria y
+                      recargos</p>
                   </div>
                 </div>
 
@@ -380,7 +372,8 @@
                     <span class="step-num">PASO 1</span>
                     <span class="step-title">Determinación de Peso Facturable</span>
                   </div>
-                  <p class="audit-step-desc">Se compara el Peso Real contra el Peso Volumétrico <code>(Alto × Ancho × Largo) / 5000</code> y se toma el mayor:</p>
+                  <p class="audit-step-desc">Se compara el Peso Real contra el Peso Volumétrico
+                    <code>(Alto × Ancho × Largo) / 5000</code> y se toma el mayor:</p>
 
                   <div class="weight-comparison-cards">
                     <div class="weight-compare-card" id="cardComparePesoReal">
@@ -412,7 +405,8 @@
                     <span class="step-num">PASO 2</span>
                     <span class="step-title">Zona Geográfica y Tarifa Base</span>
                   </div>
-                  <p class="audit-step-desc">La distancia determina el cuadro tarifario base y el plazo máximo garantizado:</p>
+                  <p class="audit-step-desc">La distancia determina el cuadro tarifario base y el plazo máximo
+                    garantizado:</p>
 
                   <div class="zone-audit-details">
                     <div class="zone-audit-row">
@@ -476,7 +470,8 @@
                   <!-- 3. BOTÓN DE ACCIÓN PRINCIPAL -->
                   <button type="submit" id="btnAdmitir" class="btn btn-primary btn-xl btn-block">
                     <span class="btn-spinner" style="display: none;"></span>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
@@ -494,13 +489,14 @@
            🔵 PANTALLA 2: MONITOR DE ENCOMIENDAS (MÓDULO DE GESTIÓN Y DESPACHO)
            ================================================================== -->
       <section id="view-monitor" class="view-section" role="tabpanel" aria-labelledby="tabBtnMonitor">
-        
+
         <!-- Encabezado de Pantalla 2 -->
         <div class="screen-header">
           <div class="screen-header-info">
             <span class="role-pill pill-blue">🔵 MÓDULO DE GESTIÓN Y DESPACHO · CONTROL CENTRAL</span>
             <h2 class="screen-title">Monitor Central de Encomiendas y Flota</h2>
-            <p class="screen-subtitle">Supervisa el estado de todos los envíos, filtra por etapa operativa y despacha las encomiendas admitidas asignando vehículo y plazo.</p>
+            <p class="screen-subtitle">Supervisa el estado de todos los envíos, filtra por etapa operativa y despacha
+              las encomiendas admitidas asignando vehículo y plazo.</p>
           </div>
           <div class="screen-header-actions">
             <button type="button" class="btn btn-primary" onclick="window.cambiarVista('view-admision')">
@@ -550,7 +546,8 @@
               </div>
             </div>
             <div class="kpi-value" id="kpiPaquetesActivos">0</div>
-            <div class="kpi-subtext"><span id="kpiAdmitidosCount">0</span> pendientes de despacho · <span id="kpiTransitoCount">0</span> en ruta</div>
+            <div class="kpi-subtext"><span id="kpiAdmitidosCount">0</span> pendientes de despacho · <span
+                id="kpiTransitoCount">0</span> en ruta</div>
           </div>
 
           <div class="kpi-card" id="kpiFlotaCard">
@@ -592,7 +589,8 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <input type="text" id="searchInput" placeholder="Buscar por código (LOGI-...) o nombre de cliente..." class="search-field">
+              <input type="text" id="searchInput" placeholder="Buscar por código (LOGI-...) o nombre de cliente..."
+                class="search-field">
               <button id="btnClearSearch" class="btn-clear" style="display: none;">&times;</button>
             </div>
 
@@ -640,7 +638,8 @@
 
               <!-- Botón Refrescar -->
               <button id="btnRefreshBoard" class="btn-icon" title="Refrescar datos del servidor">
-                <svg id="refreshIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg id="refreshIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
                   <path d="M23 4v6h-6"></path>
                   <path d="M1 20v-6h6"></path>
                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -680,7 +679,9 @@
             <div id="emptyState" class="empty-state" style="display: none;">
               <div class="empty-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                  </path>
                 </svg>
               </div>
               <h3>No se encontraron encomiendas</h3>
@@ -702,13 +703,14 @@
            🟠 PANTALLA 3: MÓDULO DE ENTREGAS E INDEMNIZACIONES (LOGÍSTICA)
            ================================================================== -->
       <section id="view-entregas" class="view-section" role="tabpanel" aria-labelledby="tabBtnEntregas">
-        
+
         <!-- Encabezado de Pantalla 3 -->
         <div class="screen-header">
           <div class="screen-header-info">
             <span class="role-pill pill-orange">🟠 MÓDULO DE LOGÍSTICA Y TRANSPORTISTAS · CIERRE DE VIAJE</span>
             <h2 class="screen-title">Recepción de Entregas y Liquidación de Indemnizaciones</h2>
-            <p class="screen-subtitle">Selecciona un envío en tránsito para registrar su resultado operativo (Entregado, Devuelto o Siniestrado), auditar demoras y liquidar reintegros.</p>
+            <p class="screen-subtitle">Selecciona un envío en tránsito para registrar su resultado operativo (Entregado,
+              Devuelto o Siniestrado), auditar demoras y liquidar reintegros.</p>
           </div>
         </div>
 
@@ -739,11 +741,13 @@
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" id="transitSearchInput" placeholder="Buscar envío por código LOGI-... o cliente..." class="search-field">
+                <input type="text" id="transitSearchInput" placeholder="Buscar envío por código LOGI-... o cliente..."
+                  class="search-field">
               </div>
 
               <div class="transit-subtabs">
-                <button type="button" class="transit-tab active" data-transit-filter="EN_TRANSITO" id="btnFilterTransitPending">
+                <button type="button" class="transit-tab active" data-transit-filter="EN_TRANSITO"
+                  id="btnFilterTransitPending">
                   🚚 En Tránsito (<span id="countTransitPending">0</span>)
                 </button>
                 <button type="button" class="transit-tab" data-transit-filter="CERRADOS" id="btnFilterTransitClosed">
@@ -778,7 +782,8 @@
 
               <!-- Selector rápido desplegable de encomienda en tránsito -->
               <div class="quick-select-wrap">
-                <select id="selectEncomiendaTransito" class="form-control select-transit" aria-label="Seleccionar encomienda en tránsito">
+                <select id="selectEncomiendaTransito" class="form-control select-transit"
+                  aria-label="Seleccionar encomienda en tránsito">
                   <option value="">-- Seleccionar envío en tránsito --</option>
                 </select>
               </div>
@@ -788,7 +793,8 @@
             <div id="emptySettlementState" class="empty-settlement-box">
               <div class="empty-settlement-icon">🚚</div>
               <h4>Ninguna encomienda en tránsito seleccionada</h4>
-              <p>Haz clic en una encomienda del listado izquierdo o selecciónala en el desplegable superior para habilitar la consola de liquidación.</p>
+              <p>Haz clic en una encomienda del listado izquierdo o selecciónala en el desplegable superior para
+                habilitar la consola de liquidación.</p>
               <button type="button" class="btn btn-secondary btn-sm" onclick="window.cambiarVista('view-monitor')">
                 Ver Encomiendas Admitidas en el Monitor
               </button>
@@ -860,8 +866,10 @@
               <div class="slider-group" id="sliderGroupDemora">
                 <div class="slider-header">
                   <div>
-                    <label for="inputSliderDemora" class="form-label-lg">B. Control de Demora (respecto al plazo garantizado)</label>
-                    <p class="slider-subhint">Desliza o selecciona un tramo rápido según las horas de retraso registradas</p>
+                    <label for="inputSliderDemora" class="form-label-lg">B. Control de Demora (respecto al plazo
+                      garantizado)</label>
+                    <p class="slider-subhint">Desliza o selecciona un tramo rápido según las horas de retraso
+                      registradas</p>
                   </div>
                   <span class="slider-value-badge font-mono" id="sliderValDisplay">0 horas</span>
                 </div>
@@ -956,7 +964,8 @@
   </div>
 
   <!-- MODAL: Detalle Técnico Completo de Encomienda & Trazabilidad -->
-  <div id="detalleModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalDetalleTitle">
+  <div id="detalleModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true"
+    aria-labelledby="modalDetalleTitle">
     <div class="modal-card modal-lg">
       <div class="modal-header">
         <div class="modal-title-wrap">
@@ -985,4 +994,5 @@
   <!-- Script Principal de la SPA -->
   <script src="js/app.js"></script>
 </body>
+
 </html>
