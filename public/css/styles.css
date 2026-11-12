@@ -152,6 +152,14 @@ body {
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   flex-wrap: wrap;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color var(--transition-normal), border-color var(--transition-normal);
+  will-change: transform;
+}
+
+/* Ocultar la barra deslizándola hacia arriba al scrollear hacia abajo */
+.topbar.topbar--hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
 }
 
 .topbar-brand {

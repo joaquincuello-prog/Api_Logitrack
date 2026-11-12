@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('.topbar')?.classList.remove('topbar--hidden');
   };
 
   dom.moduleTabs.forEach(tab => {
@@ -1299,8 +1300,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /* ==========================================================================
+     COMPORTAMIENTO DEL HEADER AL HACER SCROLL (HIDE ON SCROLL DOWN)
+     ========================================================================== */
+  function inicializarHeaderScroll() {
+    const topbar = document.querySelector('.topbar');
+    if (!topbar) return;
+
+    let ultimoScrollY = window.scrollY;
+    let ticking = false;
+    const umbralMinimo = 60;   // No ocultar antes de haber bajado al menos 60px
+    const deltaTolerancia = 8; // Mínimo cambio en px para ignorar micro-movimientos (jitter)
+
+    window.addEventListener('scroll', () => {
+      // Usamos requestAnimationFrame (RAF) para no saturar el hilo principal y mantener 60fps
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollActual = window.scrollY;
+
+          // Si estamos arriba del todo (o por rebote elástico / overscroll negativo)
+          if (scrollActual <= 0) {
+            topbar.classList.remove('topbar--hidden');
+            ultimoScrollY = 0;
+            ticking = false;
+            return;
+          }
+
+          const diferencia = scrollActual - ultimoScrollY;
+
+          // Solo actuamos si el movimiento supera el umbral de tolerancia
+          if (Math.abs(diferencia) >= deltaTolerancia) {
+            if (scrollActual > ultimoScrollY && scrollActual > umbralMinimo) {
+              // Scrolleando hacia ABAJO: ocultamos el header
+              topbar.classList.add('topbar--hidden');
+            } else if (scrollActual < ultimoScrollY) {
+              // Scrolleando hacia ARRIBA: mostramos el header
+              topbar.classList.remove('topbar--hidden');
+            }
+            ultimoScrollY = scrollActual;
+          }
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
   // Inicialización de la aplicación
   inicializarTema();
+  inicializarHeaderScroll();
   calcularCotizacionEnVivo();
   cargarDatosDashboard();
 
